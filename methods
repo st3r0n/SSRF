@@ -39,7 +39,7 @@ i.SSRF with blacklist-based input filters
 sometimes eerver may block ip or specific strings like ---> 127.0.0.1 or localhost or admin
 
 then we can do---->
-use---> Use an alternative IP representation of 127.0.0.1, such as 2130706433, 017700000001, or 127.1   -   --------------------------
+use---> Use an alternative IP representation of 127.0.0.1, such as 2130706433, 017700000001, or 127.1, 0.0.0.0, 00, 0.0   --------------------------
  Obfuscate blocked strings using URL encoding or case variation.                                                                     |   ------> important
 switching from an http: to https: URL during the redirect has been shown to bypass some anti-SSRF filters. ---------------------------
 
